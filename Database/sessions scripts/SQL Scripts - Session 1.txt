@@ -1,0 +1,187 @@
+use Company_SD
+insert into Employee (Fname , Lname , SSN , Address )
+values ( 'Ahmed' , 'Ali' , 123 , 'Alex' ) , 
+	( 'Mohamed' , 'Ali' , 456 , 'Giza' )
+
+	select * from Employee
+
+Update Employee
+set Fname = 'Ahmed'
+where ssn = 321654
+---------
+delete from Employee
+where ssn = 123
+
+-------------------
+
+------
+
+select Dname , Dnum , MGRSSN , [MGRStart Date]
+from Departments
+
+select *
+from Employee
+where Salary > 5000
+
+--------------
+
+select *
+from Employee
+-- where Salary >= 5000 and Salary <= 9000
+where Salary between 5000 and 9000
+
+
+select * from Employee
+--------
+select ssn , Fname
+from Employee
+
+select salary , salary * 0.1  Bonus 
+from Employee
+
+select *
+from Employee
+where Salary *12 > 30000
+
+select *
+from Employee
+order by Fname 
+
+
+
+ where Superssn = 968574 or Superssn = 321654
+--where Superssn in (968574 , 321654)
+
+------------
+
+select Fname
+from Employee
+where Fname like 's'
+
+-----------
+
+select distinct dno
+from employee
+where dno is not null
+
+---------
+select e.Fname +' '+ e.Lname as [Full Name] , d.Dname
+from Employee as e , Departments as d
+where d.Dnum = e.Dno
+
+
+select e.Fname +' '+ e.Lname as [Full Name] , d.Dname
+from Employee e full outer join Departments  d
+on d.Dnum = e.Dno
+
+---------------------------------------- S1e
+select *
+from Employee
+-------------
+select *
+from Employee
+where salary < 1500
+------------
+select *
+from Employee
+where Dno = 20
+------------
+select *
+from Employee
+where Lname like '_[AM]%'    -- ''A' OR 'M'
+
+---------
+
+select *
+from Employee
+where Lname like '_[A-D]%'   -- form 'A' to 'D'
+--------------
+select *
+from Employee
+where Salary like '1[06]00'   --	from 1000   to  1600
+--------------
+
+select Fname First_Name , Salary , Salary * 0.1 Bonus
+from Employee
+
+-------------
+select fname + ' ' + Lname as [Full Name] , Salary -- or Concat()
+from Employee
+where Salary * 12 > 10000
+-------------
+select fname , ssn
+from Employee
+order by Fname desc
+------------
+select *
+from Employee
+order by Dno asc , Salary desc
+
+-----------
+select distinct Superssn 
+from Employee
+-----------
+select d.* , e.Fname + ' ' + e.Lname as "Department Manager Full Name"
+from Departments d , Employee e
+where d.MGRSSN = e.SSN
+
+---------- or 
+select d.* , e.Fname + ' ' + e.Lname as "Full Name"
+from Departments d inner join Employee e
+on d.MGRSSN = e.SSN
+-----------
+select  e.Fname + ' ' + e.Lname as [Employee Full Name] 
+, d.Dname , d.MGRSSN
+, m.Fname + ' ' + m.Lname as [Dept Manager Full Name]
+from Employee e , Departments d , Employee m
+where e.Dno = d.Dnum and d.MGRSSN = m.SSN
+--
+
+
+select e.* , d.* , m.Fname
+from Employee e inner join Departments d
+on e.dno = d.Dnum inner join Employee m
+on m.SSN = d.MGRSSN
+
+-------
+select e.Fname + ' ' + e.Lname as "Emp Name"
+		, s.Fname + ' ' + s.Lname as "Sup Name"
+from Employee e , Employee s
+where e.Superssn = s.SSN
+
+---------
+select e.Fname + ' ' + e.Lname as "Emp Name" , p.Pname , w.Hours
+from Employee e , Works_for w , Project p
+where e.SSN = w.ESSn and p.Pnumber = w.Pno
+
+-- or 
+select e.Fname + ' ' + e.Lname as "Emp Name" , p.Pname , w.Hours
+from Employee e inner join Works_for w 
+on e.SSN = w.ESSn inner join Project p
+on p.Pnumber = w.Pno
+
+------------
+select e.* , d.*
+from Departments d full outer join Employee e 
+on e.Dno = d.Dnum
+-------------
+
+select *
+from Employee
+where Salary < any ( select Salary
+				from Employee
+				where Dno = 20 )
+
+-----------
+select max(salary) , MIN(salary)
+from Employee
+-----------
+select count(ssn) total_emp , COUNT(superssn) emp_no
+from Employee
+-----------
+select dno , avg(salary) 
+from Employee
+group by Dno
+having avg(salary) > 1200
+
+

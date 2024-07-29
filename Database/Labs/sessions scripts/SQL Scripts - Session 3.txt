@@ -1,0 +1,83 @@
+----1-----
+select d.Dnum , d.Dname , e.SSN , CONCAT(e.fname , e.Lname ) as "Full Name"
+from Departments as d inner join Employee e
+			on d.MGRSSN = e.SSN
+----2-----
+select Dname , Pname
+from Project p , Departments d
+where d.Dnum = p.Dnum
+
+-- or
+select Dname , Pname
+from Project p inner join Departments d
+on d.Dnum = p.Dnum
+
+----3-----
+select d.* , CONCAT(e.fname , e.Lname ) as "Full Name"
+from Dependent d inner join Employee e
+on d.ESSN = e.SSN
+
+----4-----
+select Pnumber , Pname , Plocation
+from Project
+where City = 'Cairo' or City = 'Alex'
+-- or
+select *
+from Project
+where City in ('Cairo','Alex')
+----5-----
+select *
+from Project
+where Pname like '___s%'
+----6-----
+select *
+from Employee
+where Dno = 30 and Salary < 2000 and Salary > 1000
+-- where Dno = 30 and Salary between 1000 and 2000
+----7-----
+select Fname + ' ' + Lname as Full_name
+from Employee e inner join Works_for w
+	 on e.SSN = w.ESSn inner join Project p
+	 on w.Pno = p.Pnumber
+where e.Dno = 30 and w.Hours >= 10 and p.Pname = 'AL Rabwah'
+
+----8-----
+select CONCAT(e.Fname,' ',e.Lname) as "Full Name"
+from Employee e inner join Employee s on e.Superssn = s.SSN
+where CONCAT(s.Fname,' ',s.Lname) = 'Omar Khamis'
+-- or
+select CONCAT(Fname,' ',Lname) as "Full Name"
+from Employee 
+where Superssn = ( select SSN from Employee 
+		where CONCAT(Fname,' ',Lname) = 'Omar Khamis' )
+----9-----
+select CONCAT(Fname,' ',Lname) as Full_Name , Pname
+from Employee e inner join Works_for w
+	 on e.SSN = w.ESSn inner join Project p
+	 on w.Pno = p.Pnumber
+order by Pname
+----10-----
+select d.Dname , e.Lname , e.Address , e.Bdate
+from Project p , Departments d , Employee e
+where p.Dnum = d.Dnum and d.MGRSSN = e.SSN and p.City = 'Cairo'
+----11-----
+/*
+select *
+from Employee e left outer join Employee s
+			on e.Superssn = s.SSN left outer join Departments d
+			on e.SSN = d.MGRSSN
+where d.MGRSSN is not null or s.SSN is not null
+*/
+-------------------------
+select e.Fname + ' ' + e.Lname as Manager_Full_Name
+from Employee e inner join Departments d
+		on e.SSN = d.MGRSSN
+union
+select s.Fname + ' ' + s.Lname
+from Employee e inner join Employee s
+			on e.Superssn = s.SSN
+			
+----12-----
+select *
+from Employee e left outer join Dependent d
+on e.SSN = d.ESSN

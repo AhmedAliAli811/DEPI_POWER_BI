@@ -49,7 +49,7 @@ on c.customer_id = o.customer_id
 
 -- Q8 --	
 select s.first_name , s.last_name , o.customer_id , o.shipped_date
-from sales.orders o join sales.staffs s
+from sales.orders o right join sales.staffs s
 on o.staff_id = s.staff_id
 where s.first_name = 'fabiola' or s.first_name = 'mireya'
 
@@ -59,7 +59,7 @@ from sales.orders o join sales.staffs s
 on o.staff_id = s.staff_id
 
 -- Q10 --
-select c.first_name + ' ' + c.last_name as customer_name , o.order_id , c.customer_id ,o.order_date , s.first_name + ' ' +s.last_name as staff_name
+select c.first_name + c.last_name as customer_name , o.order_id , c.customer_id ,o.order_date , s.first_name + ' ' +s.last_name as staff_name
 from sales.customers c join sales.orders o 
 on c.customer_id = o.customer_id
 join sales.staffs s 
@@ -84,7 +84,7 @@ order by num_of_orders desc
 select top 1 s2.store_id , s2.store_name , 
 DATEPART(YEAR , o2.order_date) as order_year ,
 DATEPART(Month , o2.order_date) as order_month,
-count(o2.store_id) as num_of_orders
+sum(o2.store_id) as num_of_orders
 from sales.orders o2 join sales.stores s2
 on o2.store_id = s2.store_id
 where o2.store_id = (
@@ -214,19 +214,21 @@ group by it.order_id
 having sum(it.quantity * it.list_price * (1 - it.discount)) > 20000;
 
 -- Q30 --
-select  o.order_id , o.order_date , p.* , it.quantity
+select  p.product_id , p.product_name , o.order_id , o.order_date , sum(it.quantity) as total_quantity
 from sales.orders o join sales.order_items it
-on o.order_id = it.order_id join production.products p
+on o.order_id = it.order_id right join production.products p
 on it.product_id = p.product_id
-
+group by p.product_id , p.product_name , o.order_id , o.order_date 
+order by p.product_id
 -- Q31 --
 select b.brand_id , b.brand_name , avg(p.list_price) as avg_price
 from production.brands b join production.products p 
 on b.brand_id = p.brand_id
+where p.model_year = 2018
 group by b.brand_id , b.brand_name
 
 -- Q32 --
-select o.order_id, c.first_name + ' ' + c.last_name as customer_name, s.store_name,
+select c.first_name + ' ' + c.last_name as customer_name, o.order_id, s.store_name,
 sum(it.quantity) AS total_quantity,sum(it.quantity * it.list_price * (1 - it.discount)) AS total_net_value
 from sales.customers c join sales.orders o
 on c.customer_id = o.customer_id
@@ -234,18 +236,30 @@ join sales.order_items it
 on o.order_id = it.order_id
 join sales.stores s 
 on o.store_id = s.store_id
-group by o.order_id, c.first_name , c.last_name, s.store_name
+group by  c.first_name , c.last_name, s.store_name , o.order_id
 order by o.order_id
 
 -- Q33 -- 
 
-select s.store_name , p.product_name
+select p.product_id , p.product_name , SUM(st.quantity) as total_quantity , 'have not been sold' as status
 from production.products p left join sales.order_items it 
 on p.product_id = it.product_id left join sales.orders o 
 on o.order_id = it.order_id left join sales.stores s 
 on s.store_id = o.store_id left join production.stocks st 
 on s.store_id = st.store_id
-where it.product_id is null or st.quantity = 0
+where it.product_id is null
+group by p.product_id , p.product_name
+
+union 
+
+select p.product_id , p.product_name , SUM(st.quantity) as total_quantity , 'out of stock' as status
+from production.products p left join sales.order_items it 
+on p.product_id = it.product_id left join sales.orders o 
+on o.order_id = it.order_id left join sales.stores s 
+on s.store_id = o.store_id left join production.stocks st 
+on s.store_id = st.store_id
+where st.quantity = 0
+group by p.product_id , p.product_name
 
 -- Bonus --
 
@@ -273,7 +287,7 @@ where shipped_date > required_date
 -- Q5 --
 select distinct state
 from sales.stores
-where store_name like '%jeff%'
+
 
 -- Q6 --
 select order_id , order_date , store_id
@@ -297,13 +311,12 @@ from sales.customers c join sales.orders o
 on c.customer_id = o.customer_id join sales.stores s
 on o.store_id = s.store_id join sales.staffs st
 on s.store_id = st.store_id
-where c.zip_code = 11418 and s.store_name like '%Jeff’s %'
+where c.zip_code = 11418 
 
 -- Q9 --
-select s.store_id , s.store_name , p.product_id , p.product_name , st.quantity
+select  , s.store_name , st.product_id , st.quantity
 from sales.stores s join production.stocks st
-on s.store_id = st.store_id join production.products p 
-on st.product_id = p.product_id
+on s.store_id = st.store_id 
 where st.quantity < 4
 
 -- Q10 --
@@ -316,4 +329,4 @@ on c1.customer_id = o2.customer_id join sales.order_items it2
 on o2.order_id = it2.order_id join production.products p2 
 on it2.product_id = p2.product_id
 where p1.product_name != p2.product_name and 
-p1.product_name like '%Surly Straggler 650b - 2016%' and p2.product_name like '%Sun Bicycles Cruz 3 – 2017%'
+p1.product_name like '%Surly Straggler 650b - 2016%' and p2.product_name like '%Sun Bicycles Cruz 3 - 2017%'

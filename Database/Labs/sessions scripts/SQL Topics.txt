@@ -1,0 +1,84 @@
+--------- SELECT
+
+1- concatenation:
+
+		 fname + ' ' + lname 		
+-or-  	concat ( fname , ' ' , lname )
+
+
+2- columns alias name:
+
+	fname as First_Name  -or- [First Name]
+	fname 	 First_Name  -or- "First Name"
+
+3- comparison operators:
+
+		- single row operators     =   >    <    >=     <=            !=   <>
+		- multi-row operators 	IN / ALL / ANY
+		- BETWEEN ( include the 2 brackets' sides )     / NOT BETWEEN
+		- not equal != or <>
+		- LIKE ( searching with pattern ) 	_ ONLY 1 character	 % zero or more     contain '%Ahmed%'        '[AD]%'   A or D    '[A-C]%'    from A to C   '5_.%'
+		- IS NULL / IS NOT NULL
+		-                         = null     ?!! when
+		- NOT
+		- DISTINCT
+
+		
+4- text (string) functions:
+			
+			- concat()
+			- upper()
+			- lower()
+			- initcap()
+			- len()
+			- substr()
+			- instr()
+			- charindex()			how to extract user_name from emails
+			- left()
+			- right()
+			- replace()
+			- trim()
+			- reverse()
+			- ISNULL()
+			
+
+5- numeric & date functions:
+
+			- round()
+			- trunc()
+			- GETDATE()
+			- DATEPART()		(year , quarter , month , day , dayofyear , week , weekday
+			- DATEADD()
+			- DATEDIFF()
+			- DAY()
+			- MONTH()
+			- YEAR()
+			- EOMONTH()
+			- CAST()
+			- CONVERT()
+
+6- set operators:
+			- UNION
+			- UNION ALL
+			- INTERSECT
+			- EXCEPT
+
+
+
+7- CTE common table expression
+
+8- Find / Delete duplicates  ??
+
+9- Analytical SQL
+
+10- Views and other database objects
+
+
+
+
+
+
+
+
+
+

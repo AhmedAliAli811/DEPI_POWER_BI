@@ -1,0 +1,152 @@
+
+-- 18
+select distinct tab.* , p.product_name , 'most_expensive_products_price'
+from 
+		(
+		SELECT c.customer_id, c.first_name, c.last_name , max(oi.list_price) AS Max
+		from sales.customers c join sales.orders o 
+		on c.customer_id = o.customer_id join sales.order_items oi 
+		on o.order_id = oi.order_id join production.products  p 
+		on oi.product_id = p.product_id
+		GROUP BY c.customer_id, c.first_name , c.last_name
+		) tab 
+inner join sales.order_items i
+on tab.Max = i.list_price inner join production.products p
+on p.product_id = i.product_id
+
+union
+
+select distinct tab.* , p.product_name , 'cheapest_products_price'
+from 
+		(
+		SELECT c.customer_id, c.first_name, c.last_name , Min(oi.list_price) AS Min
+		from sales.customers c join sales.orders o 
+		on c.customer_id = o.customer_id join sales.order_items oi 
+		on o.order_id = oi.order_id join production.products  p 
+		on oi.product_id = p.product_id
+		GROUP BY c.customer_id, c.first_name , c.last_name
+		) tab 
+inner join sales.order_items i
+on tab.Min = i.list_price inner join production.products p
+on p.product_id = i.product_id
+order by tab.customer_id desc
+
+
+--19
+-- Count No. of Pieces
+select p.product_id , p.product_name , SUM(i.quantity) No_of_Pieces
+from sales.orders o inner join sales.order_items i
+on o.order_id = i.order_id inner join production.products p
+on p.product_id = i.product_id 
+group by p.product_name
+having SUM(i.quantity) > 100
+
+-- product has ordered more than 100 times
+select p.product_name , P.product_id , count(i.product_id) No_of_Pieces
+from sales.orders o inner join sales.order_items i
+on o.order_id = i.order_id inner join production.products p
+on p.product_id = i.product_id 
+group by p.product_name
+having count(i.product_id) > 100
+
+-----20----
+
+select distinct order_date
+from sales.orders
+order by order_date
+
+-----21----
+select distinct c.category_name , b.brand_name , p.product_name
+from production.categories c , production.products p , production.brands b
+where c.category_id = p.category_id and p.brand_id = b.brand_id
+
+-----22----
+select ss.* , store_name
+from sales.staffs ss inner join sales.stores s
+on s.store_id = ss.store_id
+where s.store_id = 1 and manager_id = 2
+order by first_name asc
+
+
+
+-----23----select *
+from production.products
+/*where brand_id = 1 or brand_id = 9 
+and list_price between 199.99 and 499.99*/
+where brand_id in ( 1 , 9 )
+and list_price between 199.99 and 499.99
+
+
+-----24--------
+select top 3 product_id , product_name , list_price
+from production.products
+where model_year = 2018
+order by list_price desc
+
+-- another one
+select top 1 *
+from  
+(select top 3 product_id , product_name , list_price
+from production.products
+where model_year = 2018
+order by list_price desc) tab
+order by list_price asc
+ 
+ -----25----
+
+ select *
+ from sales.customers
+ where first_name like '%t_' and zip_code like '11%'
+ order by first_name
+
+  -----26----
+
+ select *
+ from production.products
+ where list_price in ( 999.99 , 1999.99 , 2999.99 )
+
+ 
+ -----27-----
+
+ select COUNT(product_id) [total number of products] 
+ from production.products
+ where product_name like 'Trek%' 
+ and list_price between 199.99 and 999.99
+
+-----28-----
+
+select product_name , SUM(p.list_price*st.quantity) Total_Expected_Sales_AMT
+ , SUM(st.quantity) Total_Stock_Products
+from production.products p inner join production.stocks st
+on p.product_id = st.product_id
+where p.product_name like '%ladies%'
+group by product_name
+
+
+select distinct product_name , list_price , SUM(st.quantity) over (partition by product_name ) Total_Stock_Products
+, SUM(p.list_price*st.quantity) over (partition by product_name )Total_Expected_Sales_AMT
+from production.products p inner join production.stocks st
+on p.product_id = st.product_id
+where p.product_name like '%ladies%'
+
+-----29-----
+
+select o.order_id , o.order_date , o.shipped_date 
+, sum(quantity * list_price * (1 - discount)) as [total net value]
+from sales.orders o , sales.order_items i
+where o.order_id = i.order_id
+group by o.order_id , o.order_date , o.shipped_date
+having sum(quantity * list_price * (1 - discount))  > 20000
+
+-- or
+
+select o.* , tab.[total net value]
+from
+(
+select o.order_id , sum(quantity * list_price * (1 - discount)) as [total net value]
+from sales.orders o , sales.order_items i
+where o.order_id = i.order_id
+group by o.order_id
+having sum(quantity * list_price * (1 - discount))  > 20000
+) tab inner join sales.orders o
+on o.order_id = tab.order_id

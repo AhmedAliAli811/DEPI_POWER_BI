@@ -1,0 +1,63 @@
+-- Date of next order (LAB) --
+/* From orders table in the order entry schema (OE), Find  the date of next order for each customer.
+There are almost 5 different ways to calculate the date of
+the next order, get as much as you can! */
+
+use BikeStores
+
+select customer_id , order_date
+, LEAD(order_date) over (partition by customer_id order by order_date ) as next_order_date___LEAD
+,  LAG(order_date) over (partition by customer_id order by order_date desc ) as next_order_date___LAG
+,  MAX(ORDER_date) over (partition by customer_id order by order_date rows between current row and 1 following ) next_order_date___MAX
+,  MIN(ORDER_date) over (partition by customer_id order by order_date  rows between 1 following and 1 following ) next_order_date___MIN1
+,  MIN(ORDER_date) over (partition by customer_id order by order_date  rows between 1 following and unbounded following ) next_order_date___MIN2
+from sales.orders
+order by customer_id , order_date
+
+
+-- Analytical SQL Assignment 1 --
+----------------
+
+use Songs_Events
+select * 
+from Songs_Events
+
+--------- 1 ---------
+
+select userid , COUNT ( distinct song ) count_disinct_played_songs 
+ , dense_rank() over ( order by COUNT ( distinct song ) desc ) as Count_Rank
+from Songs_Events
+GROUP BY userid
+
+--------- 2 ---------
+
+select userid , COUNT ( distinct song ) count_disinct_played_songs 
+ , row_number() over ( order by COUNT ( distinct song ) desc ) as Count_Rank
+from Songs_Events
+GROUP BY userid
+
+--------- 3 ---------
+
+select userid , sessionid , song , ts , lead(song,1,'No Next') over(partition by sessionid order by ts ) next_song
+from Songs_Events
+order by userid desc , sessionid , ts
+
+--------- 4 ---------
+
+select *
+from(
+select userid , COUNT(song) no_listened_paid_songs , rank() over ( order by COUNT(song) desc ) Rank
+from Songs_Events
+where level = 'paid'
+group by userid
+) tab
+where rank = 3
+
+--------- 5 ---------
+select distinct userid , sessionid , FIRST_VALUE( song ) over ( partition by sessionid order by ts ) first_song
+, FIRST_VALUE( song ) over ( partition by sessionid order by ts desc ) last_song
+from Songs_Events
+order by userid desc ,  sessionid desc
+
+
+

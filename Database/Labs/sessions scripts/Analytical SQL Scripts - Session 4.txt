@@ -1,0 +1,62 @@
+select *
+from
+(
+select * , rank() over ( order by sal asc)
+		 , percent_rank() over (order by sal asc) perc
+from emp
+) tab
+where perc >= 0.7
+
+-------------
+select *
+from
+(
+select * 
+		 , percent_rank() over (order by sal desc) perc
+from emp
+) tab
+where perc <= 0.3
+-------------
+select *
+from
+(
+select * , cume_dist () over ( order by hiredate asc ) cs
+from emp
+)
+where cs <= 0.22
+-------------
+select *
+from
+(
+select * , rank() over ( order by hiredate desc ) rank
+, cume_dist () over ( order by hiredate desc ) cs
+from emp
+)
+where cs >= 0.78
+
+
+select *
+from emp
+
+select * , rank() over ( order by sal) 
+, cume_dist () over ( order by sal)    --  rank / no. rows 
+, percent_rank () over ( order by sal) -- ( rank - 1 ) / ( no.rows -1 )
+from emp
+
+select * , first_value (ename) over(partition by deptno order by sal desc )
+		, last_value (ename) over(partition by deptno order by sal desc rows between unbounded preceding and unbounded following )
+from emp	
+
+
+
+
+-------------------------------------------------------
+
+select sessionid , page , song , ts 
+, rank() over ( partition by sessionid order by ts )
+, percent_rank() over ( partition by sessionid order by ts )
+from songs_events
+						perc rank 0.5	2 / 4 
+
+
+			
